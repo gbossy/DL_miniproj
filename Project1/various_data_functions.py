@@ -9,7 +9,7 @@ from torchvision.datasets import MNIST
 import torchvision.transforms as transforms
 
 def data( N, normalize, one_hot, loss, anew = True,
-    train_input = None, train_target = None, train_classes = None, test_input = None, test_target = None, test_classes = None):
+    train_input = None, train_target = None, train_classes = None, test_input = None, test_target = None, test_classes = None, shuffle=False):
     
     def assertion_cycle():
         assert train_input is not None, 'train_input is None and data is not generated anew'
@@ -29,6 +29,13 @@ def data( N, normalize, one_hot, loss, anew = True,
         train_input,train_target,train_classes,test_input,test_target,test_classes=prologue.generate_pair_sets(N)
         train_input = train_input.float()
         test_input = test_input.float()
+        
+    if shuffle:
+        
+        permuted_index = torch.randperm(train_input.size()[0])
+        train_input_shuffled = train_input[permuted_index]
+        train_target_shuffled = train_target[permuted_index]
+        train_classes_shuffled = train_classes[permuted_index]
 
     if one_hot: 
         assertion_cycle()
