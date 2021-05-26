@@ -113,8 +113,9 @@ class Linear(Module):
         
         #if the gradient of the weights are not yet initialized, it initializes it 
         if self.weight.grad is None:
-            self.weight.grad = torch.zeros_like(self.weight.data)
-        
+            self.weight.grad = empty(self.weight.data.shape)#previously used torch.zeros_like(self.weight.data)
+            self.weight.grad[self.bias.grad!=0]=0
+
         #computes and updates the mean gradient on the batch 
         grad_on_batch = prev_grad.view(self.batch_size, -1, 1)*self.x.view(self.batch_size, 1, -1)
         self.weight.grad += grad_on_batch.mean(0)
@@ -122,7 +123,8 @@ class Linear(Module):
         #if a bias is present, repet the previous stages
         if self.with_bias:
             if self.bias.grad is None:
-                self.bias.grad = torch.zeros_like(self.bias.data)
+                self.bias.grad = empty(self.bias.data.shape)#previously used torch.zeros_like(self.bias.data)
+                self.bias.grad[self.bias.grad!=0]=0
             grad_on_batch = prev_grad.view(self.batch_size, -1)
             self.bias.grad += grad_on_batch.mean(0)
         
@@ -341,7 +343,9 @@ class SGD(Optimizer):
         if momentum:
             self.v = []
             for p in self.param:
-                self.v += [torch.zeros_like(p.data)]
+                new=empty(p.data.shape)
+                new[new!=0]=0
+                self.v += [new]
         
     #updates the weights using the gradient
     def step(self): 
@@ -355,7 +359,7 @@ class SGD(Optimizer):
             #ATTENTION: remember to change the 100                
             #if the moementum is not required updates using the regular SGD
             else :           
-                parameter.data = parameter.data - self.eta* 100. * parameter.grad
+                parameter.data = parameter.data - self.eta * parameter.grad
            
 
 
@@ -376,8 +380,9 @@ class SGD(Optimizer):
         self.v = self.param.copy()
         self.v = []
         for i in range(len(self.param)):
-            size_param = self.param[i].data.size()
-            v_init= torch.zeros(size_param)
+            size_param = self.param[i].data.shape#previously was .size() instead of .shape
+            v_init= empty(size_param)
+            v_init[v_init!=0]=0#previously used torch.zeros(size_param)
             (self.v).append(v_init)
         
         
