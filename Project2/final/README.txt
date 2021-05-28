@@ -1,6 +1,6 @@
 This is our EE-559 project 2 for the group of Axelle Piguet, Fabrizio Forte and Gaëtan Bossy.
 
-framework.py contains the definitions of the classes Module (Linear, Tanh, ReLu, Sigmoid, Softmax,), Losses (MSE), Sequential and Optimizer (SGD).
+framework.py contains the definitions of the classes Module (Linear, Tanh, ReLu, Sigmoid, Softmax,Sequential), Losses (MSE), and Optimizer (SGD).
 
 test.py includes functions for data generation, network training, and decision boundary plots.
 It also contains test functions for Tanh and Softmax.
