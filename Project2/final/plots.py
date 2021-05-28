@@ -25,7 +25,7 @@ grid = tensor(grid).float()
 ###########################################################################
 
 #function that plots the decision boudary for the first two models
-def countour(net):
+def countour(net,plotname=None):
     # make predictions for the grid
     yhat = np.floor(net.forward(grid).numpy())
     # reshape the predictions back into a grid
@@ -35,11 +35,13 @@ def countour(net):
     #plot the data
     plt.plot(test_data[:,0][test_target[:,0]==1], test_data[:,1][test_target[:,0]==1],'bo')
     plt.plot(test_data[:,0][test_target[:,0]!=1], test_data[:,1][test_target[:,0]!=1],'go')
+    if plotname is not None:
+        plt.savefig(plotname,bbox_inches='tight')
     plt.show()
     return yhat
 
 #function that plots the decision boudary for the third model (the one with softmax
-def countour_(net):
+def countour_(net,plotname=None):
     # make predictions for the grid
     yhat = net.forward(grid).argmax(1).int().numpy()
     # reshape the predictions back into a grid
@@ -49,6 +51,8 @@ def countour_(net):
     #plot the data
     plt.plot(test_data[:,0][test_target[:,0]==1], test_data[:,1][test_target[:,0]==1],'bo')
     plt.plot(test_data[:,0][test_target[:,0]!=1], test_data[:,1][test_target[:,0]!=1],'go')
+    if plotname is not None:
+        plt.savefig(plotname,bbox_inches='tight')
     plt.show()
     return yhat
 
@@ -188,13 +192,14 @@ losses_log = training(train_data, train_target, net, optimizer, epochs, batch_si
 test_tanh(net, test_data, test_target, verbose = False)
 
 #plotting the decision boudary 
-yhat = countour(net)
+yhat = countour(net,'Proj2Test1boundary.png')
 
 #plotting the losses
 plt.plot(tensor(np.arange(losses_log.shape[0])), losses_log)
 plt.xlabel('epochs')
 plt.ylabel('accumulated loss')
 plt.title('Full Tanh')
+plt.savefig('Proj2Test1loss.png',bbox_inches='tight')
 plt.show()
 
 ###########################################################################################
@@ -231,13 +236,14 @@ losses_log = training(train_data, train_target, net, optimizer, epochs, batch_si
 test_tanh(net, test_data, test_target, verbose = False)
 
 #plotting the decision boudary
-yhat = countour(net)
+yhat = countour(net,'Proj2Test2boundary.png')
 
 #plotting the losses
 plt.plot(tensor(np.arange(losses_log.shape[0])), losses_log)
 plt.xlabel('epochs')
 plt.ylabel('accumulated loss')
 plt.title('ReLu + Tanh at the end')
+plt.savefig('Proj2Test2loss.png',bbox_inches='tight')
 plt.show()
 
 
@@ -281,13 +287,14 @@ losses_log = training(train_data, train_target_hot, net, optimizer, epochs, batc
 test_softmax(net, test_data, test_target_hot, verbose = False)
 
 #plotting the decision boudary 
-countour_(net)
+countour_(net,'Proj2Test3boundary.png')
 
 #plotting the losses
 plt.plot(tensor(np.arange(losses_log.shape[0])), losses_log)
 plt.xlabel('epochs')
 plt.ylabel('accumulated loss')
 plt.title('ReLu + Softmax at the end')
+plt.savefig('Proj2Test3loss.png',bbox_inches='tight')
 plt.show()
 
 
