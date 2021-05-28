@@ -1,8 +1,56 @@
 from torch import empty, tensor, set_grad_enabled
 import math
 import random
+import numpy as np
+import matplotlib.pyplot as plt
 from framework import *
 set_grad_enabled(False)
+
+####################################################################
+#the following parameters are needed only for the decision boudary plots
+# define bounds of the domain
+min1, max1 = 0, 1.01
+min2, max2 = 0, 1.01
+# define the x and y scale
+x1grid = np.arange(min1, max1, 0.001)
+x2grid = np.arange(min2, max2, 0.001)
+# create all of the lines and rows of the grid
+xx, yy = np.meshgrid(x1grid, x2grid)
+# flatten each grid to a vector
+r1, r2 = xx.flatten(), yy.flatten()
+r1, r2 = r1.reshape((len(r1), 1)), r2.reshape((len(r2), 1))
+# horizontal stack vectors to create x1,x2 input for the model
+grid = np.hstack((r1,r2))
+grid = tensor(grid).float()
+###########################################################################
+
+#function that plots the decision boudary for the first two models
+def countour(net):
+    # make predictions for the grid
+    yhat = np.floor(net.forward(grid).numpy())
+    # reshape the predictions back into a grid
+    zz = yhat.reshape(xx.shape)
+    # plot the grid of x, y and z values as a surface
+    plt.contourf(xx, yy, zz, cmap='Paired')
+    #plot the data
+    plt.plot(test_data[:,0][test_target[:,0]==1], test_data[:,1][test_target[:,0]==1],'bo')
+    plt.plot(test_data[:,0][test_target[:,0]!=1], test_data[:,1][test_target[:,0]!=1],'go')
+    plt.show()
+    return yhat
+
+#function that plots the decision boudary for the third model (the one with softmax
+def countour_(net):
+    # make predictions for the grid
+    yhat = net.forward(grid).argmax(1).int().numpy()
+    # reshape the predictions back into a grid
+    zz = yhat.reshape(xx.shape)
+    # plot the grid of x, y and z values as a surface
+    plt.contourf(xx, yy, zz, cmap='Paired')
+    #plot the data
+    plt.plot(test_data[:,0][test_target[:,0]==1], test_data[:,1][test_target[:,0]==1],'bo')
+    plt.plot(test_data[:,0][test_target[:,0]!=1], test_data[:,1][test_target[:,0]!=1],'go')
+    plt.show()
+    return yhat
 
 def training(train_data, train_target, net, optimizer, epochs, batch_size, permute = True):
     
@@ -139,6 +187,15 @@ losses_log = training(train_data, train_target, net, optimizer, epochs, batch_si
 #testing the net
 test_tanh(net, test_data, test_target, verbose = False)
 
+#plotting the decision boudary 
+yhat = countour(net)
+
+#plotting the losses
+plt.plot(tensor(np.arange(losses_log.shape[0])), losses_log)
+plt.xlabel('epochs')
+plt.ylabel('accumulated loss')
+plt.title('Full Tanh')
+plt.show()
 
 ###########################################################################################
 #Initialize a second test model using linear layers and relu activation functions except for the last layer that's Tanh activation function
@@ -172,6 +229,16 @@ losses_log = training(train_data, train_target, net, optimizer, epochs, batch_si
 
 #testing the net
 test_tanh(net, test_data, test_target, verbose = False)
+
+#plotting the decision boudary
+yhat = countour(net)
+
+#plotting the losses
+plt.plot(tensor(np.arange(losses_log.shape[0])), losses_log)
+plt.xlabel('epochs')
+plt.ylabel('accumulated loss')
+plt.title('ReLu + Tanh at the end')
+plt.show()
 
 
 #######################################################################################
@@ -212,6 +279,18 @@ losses_log = training(train_data, train_target_hot, net, optimizer, epochs, batc
 
 #testing the net
 test_softmax(net, test_data, test_target_hot, verbose = False)
+
+#plotting the decision boudary 
+countour_(net)
+
+#plotting the losses
+plt.plot(tensor(np.arange(losses_log.shape[0])), losses_log)
+plt.xlabel('epochs')
+plt.ylabel('accumulated loss')
+plt.title('ReLu + Softmax at the end')
+plt.show()
+
+
 
 
 
