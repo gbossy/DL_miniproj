@@ -38,6 +38,8 @@ def countour(net,plotname=None):
     if plotname is not None:
         plt.savefig(plotname,bbox_inches='tight')
     plt.show()
+    plt.close()
+    
     return yhat
 
 #function that plots the decision boudary for the third model (the one with softmax
@@ -54,6 +56,8 @@ def countour_(net,plotname=None):
     if plotname is not None:
         plt.savefig(plotname,bbox_inches='tight')
     plt.show()
+    plt.close()
+
     return yhat
 
 def training(train_data, train_target, net, optimizer, epochs, batch_size, permute = True):
@@ -201,6 +205,7 @@ plt.ylabel('accumulated loss')
 plt.title('Full Tanh')
 plt.savefig('Proj2Test1loss.png',bbox_inches='tight')
 plt.show()
+plt.close()
 
 ###########################################################################################
 #Initialize a second test model using linear layers and relu activation functions except for the last layer that's Tanh activation function
@@ -245,6 +250,7 @@ plt.ylabel('accumulated loss')
 plt.title('ReLu + Tanh at the end')
 plt.savefig('Proj2Test2loss.png',bbox_inches='tight')
 plt.show()
+plt.close()
 
 
 #######################################################################################
@@ -296,11 +302,4 @@ plt.ylabel('accumulated loss')
 plt.title('ReLu + Softmax at the end')
 plt.savefig('Proj2Test3loss.png',bbox_inches='tight')
 plt.show()
-
-
-
-
-
-
-
-
+plt.close()
