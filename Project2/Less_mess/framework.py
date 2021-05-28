@@ -113,7 +113,7 @@ class Linear(Module):
         
         #if the gradient of the weights are not yet initialized, it initializes it 
         if self.weight.grad is None:
-            self.weight.grad = empty(self.weight.data.shape)#previously used torch.zeros_like(self.weight.data)
+            self.weight.grad = empty(self.weight.data.shape)
             self.weight.grad[self.bias.grad!=0]=0
 
         #computes and updates the mean gradient on the batch 
@@ -123,7 +123,7 @@ class Linear(Module):
         #if a bias is present, repet the previous stages
         if self.with_bias:
             if self.bias.grad is None:
-                self.bias.grad = empty(self.bias.data.shape)#previously used torch.zeros_like(self.bias.data)
+                self.bias.grad = empty(self.bias.data.shape)
                 self.bias.grad[self.bias.grad!=0]=0
             grad_on_batch = prev_grad.view(self.batch_size, -1)
             self.bias.grad += grad_on_batch.mean(0)
@@ -253,7 +253,8 @@ class Softmax(Module):
             off_diag = temp*torch.transpose(temp, 1, 2)
             diag = torch.diag_embed(torch.diagonal(off_diag, dim1 = 1, dim2 = 2).sqrt()) 
             return diag - off_diag
-        return torch.einsum('b ij, bj -> bi', d(self.x),prev_grad)/ self.x.shape[0]
+        #return torch.einsum('b ij, bj -> bi', d(self.x),prev_grad)/ self.x.shape[0]
+        return d(self.x).bmm(prev_grad.unsqueeze(-1)).squeeze()  / self.x.shape[0]
     
 
 #######################################
@@ -343,9 +344,7 @@ class SGD(Optimizer):
         if momentum:
             self.v = []
             for p in self.param:
-                new=empty(p.data.shape)
-                new[new!=0]=0
-                self.v += [new]
+                self.v += [empty(p.data.shape).zero_()]
         
     #updates the weights using the gradient
     def step(self): 
@@ -361,64 +360,6 @@ class SGD(Optimizer):
             else :           
                 parameter.data = parameter.data - self.eta * parameter.grad
            
-
-
-        '''
-#SGD Optimizer with momentum
-class SGD(Optimizer):
-
-    def __init__(self,lr, parameters, momentum = False ,beta= 0.9) :   
-        super().__init__()
-        
-        #stores the parameters
-        self.eta = lr
-        self.param = parameters
-        self.momentum = momentum
-        self.beta = beta
-        
-        # Initialize momentum to zero
-        self.v = self.param.copy()
-        self.v = []
-        for i in range(len(self.param)):
-            size_param = self.param[i].data.shape#previously was .size() instead of .shape
-            v_init= empty(size_param)
-            v_init[v_init!=0]=0#previously used torch.zeros(size_param)
-            (self.v).append(v_init)
-        
-        
-
-    def step(self): 
-        for parameter, V in zip(self.param, self.v): 
-            if self.momentum :    # SGD + Momentum
-                V = self.beta * V + self.eta * parameter.grad   
-                parameter.data = parameter.data - V
-            else :                # SGD 
-                parameter.data = parameter.data - self.eta* 100. * parameter.grad
-           
-           '''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
