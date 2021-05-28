@@ -1,6 +1,5 @@
 from torch import empty, tensor
 import math
-import torch
 ###########################################################################################
 ## Superclasses of Modules, Losses and Optmizer. To be extended. 
 #
@@ -249,8 +248,8 @@ class Softmax(Module):
         def d(x):
             s = x.softmax(1)
             temp = s.unsqueeze(-1)
-            off_diag = temp*torch.transpose(temp, 1, 2)
-            diag = torch.diag_embed(torch.diagonal(off_diag, dim1 = 1, dim2 = 2).sqrt()) 
+            off_diag = temp*temp.transpose(1, 2)
+            diag = (off_diag.diagonal(dim1 = 1, dim2 = 2).sqrt()).diag_embed()
             return diag - off_diag
         #return torch.einsum('b ij, bj -> bi', d(self.x),prev_grad)/ self.x.shape[0]
         return d(self.x).bmm(prev_grad.unsqueeze(-1)).squeeze()  / self.x.shape[0]
